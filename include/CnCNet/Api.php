@@ -55,7 +55,7 @@ class CnCNet_Api
             $ips[] = 'latejoin';
 
             return array(
-                'url'       => $protocol.'://@'.urlencode(base64_encode(implode(',', $ips))),
+                'url'       => $protocol.'://@'.base64_encode(implode(',', $ips)),
                 'interval'  => self::INTERVAL
             );
         }
