@@ -23,7 +23,7 @@ class CnCNet_Json_Server_Response_Http_Jsonp extends Zend_Json_Server_Response_H
         if (!isset($_GET['callback'])) {
             return '';
         }
-        return '<script type="text/javascript">' . $_GET['callback'] . '(' . parent::toJson() . ');</script>';
+        return $_GET['callback'] . '(' . parent::toJson() . ');';
     }
 
     public function sendHeaders()
