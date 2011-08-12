@@ -29,17 +29,26 @@ Zend_Db_Table::setDefaultAdapter($db);
 $db->query('PRAGMA foreign_keys = ON');
 unset($db);
 
-$server = new Zend_Json_Server();
-$server->setClass('CnCNet_Api');
+$type = isset($_GET['type']) ? $_GET['type'] : 'json';
 
-if (isset($_GET['type']) && $_GET['type'] == 'jsonp') {
-    $server->setRequest(new CnCNet_Json_Server_Request_Http_Jsonp());
-    $server->setResponse(new CnCNet_Json_Server_Response_Http_Jsonp());
-} else {
-    if ($_SERVER['REQUEST_METHOD'] == 'GET') {
-        echo $server->setEnvelope(Zend_Json_Server_Smd::ENV_JSONRPC_2)->getServiceMap();
-        return;
+if ($type == 'json' || $type == 'jsonp') {
+    $server = new Zend_Json_Server();
+    $server->setClass('CnCNet_Api');
+
+    if ($type == 'jsonp') {
+        $server->setRequest(new CnCNet_Json_Server_Request_Http_Jsonp());
+        $server->setResponse(new CnCNet_Json_Server_Response_Http_Jsonp());
+    } else {
+        if ($_SERVER['REQUEST_METHOD'] == 'GET') {
+            echo $server->setEnvelope(Zend_Json_Server_Smd::ENV_JSONRPC_2)->getServiceMap();
+            return;
+        }
     }
-}
 
-$server->handle();
+    $server->handle();
+} else if ($type == 'xml') {
+    header('Content-type: text/xml');
+    $server = new Zend_XmlRpc_Server();
+    $server->setClass('CnCNet_Api');
+    echo $server->handle();
+}
