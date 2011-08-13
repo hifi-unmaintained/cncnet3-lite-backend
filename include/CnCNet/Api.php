@@ -35,6 +35,21 @@ class CnCNet_Api
         }
     }
 
+    /**
+     * Login and request the game launch URL
+     *
+     * This should be the first function called to get the player registered and start
+     * the ping loop.
+     *
+     * The return struct contains members 'url' and 'interval' if the call succeeds. Url
+     * should be passed to the game as it's last parameter for CnCNet dll to use it
+     * successfully. Interval is the interval of ping in minutes to keep the connection
+     * alive.
+     *
+     * @param string    $protocol   The protocol name
+     * @param int       $port       Port number, defaults to self::DEFAULT_PORT
+     * @return boolean|struct       Fail or data
+     */
     public function launch ($protocol, $port = self::DEFAULT_PORT)
     {
         if ($this->ping($protocol, $port)) {
@@ -63,6 +78,13 @@ class CnCNet_Api
         return false;
     }
 
+    /**
+     * Keep-alive ping call which is required to stay logged in
+     *
+     * @param string    $protocol   The protocol name
+     * @param int       $port       Port number, defaults to self::DEFAULT_PORT
+     * @return boolean              Success
+     */
     public function ping ($protocol, $port = self::DEFAULT_PORT)
     {
         $row = $this->player->select()->join('games', 'games.id = players.game_id', '')->where('ip = ?', $this->ip)->where('port = ?', $port)->where('games.protocol = ?', $protocol)->fetchRow();
@@ -80,12 +102,22 @@ class CnCNet_Api
                     'port'      => $port,
                     'active'    => date('Y-m-d H:i:s')
                 ));
-                return array('interval' => self::INTERVAL);
+                return true;
             }
         }
         return false;
     }
 
+    /**
+     * Logout from CnCNet (optional)
+     *
+     * Calling this is completely optional and only ensures the player will not receive
+     * any further packets from new players before the timeout occurs.
+     *
+     * @param string    $protocol   The protocol name
+     * @param int       $port       Port number, defaults to self::DEFAULT_PORT
+     * @return boolean              Success
+     */
     public function logout ($protocol, $port = self::DEFAULT_PORT)
     {
         $row = $this->player->select()->join('games', 'games.id = players.game_id', '')->where('ip = ?', $this->ip)->where('port = ?', $port)->where('games.protocol = ?', $protocol)->where('logout IS NULL')->fetchRow();
