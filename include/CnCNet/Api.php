@@ -63,14 +63,11 @@ class CnCNet_Api
             $select->where(sprintf('NOT (ip = %s AND port = %s)', $db->quote($this->ip), $db->quote($port)));
 
             foreach ($select as $row) {
-                $ips[] = $row->ip . ($row->port != self::DEFAULT_PORT ? ':' . $row->port : '');
+                $ips[] = $row->ip . ':' . $row->port;
             }
 
-            /* need this for it to work at all */
-            $ips[] = 'latejoin';
-
             return array(
-                'url'       => $protocol.'://@'.base64_encode(implode(',', $ips)),
+                'url'       => $protocol.':?v4='.CnCNet_Utils::base32_encode(CnCNet_Utils::v4_peers2bin($ips)).'&open&port='.(int)$port,
                 'interval'  => self::INTERVAL
             );
         }
