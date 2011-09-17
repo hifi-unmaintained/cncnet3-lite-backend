@@ -51,4 +51,37 @@ if ($type == 'json' || $type == 'jsonp') {
     $server = new Zend_XmlRpc_Server();
     $server->setClass('CnCNet_Api');
     echo $server->handle();
+} else if ($type == 'dumb') {
+    header('Content-type: text/plain; charset=UTF-8');
+    $server = new CnCNet_Api();
+    if (isset($_GET['method']) && method_exists($server, $_GET['method'])) {
+        try {
+            @$ret = call_user_func_array(array($server, $_GET['method']), isset($_GET['params']) ? (is_array($_GET['params']) ? $_GET['params'] : array($_GET['params'])) : array());
+        } catch(Exception $e) {
+            header('HTTP/1.0 500 Internal Server Error');
+            echo '500 Internal Server Error (Exception from API)';
+            exit;
+        }
+        function to_dumb_string($var)
+        {
+            if (is_int($var) || is_float($var)) {
+                return (string)$var;
+            } else if (is_bool($var)) {
+                return $var ? 'true' : 'false';
+            } else if (is_string($var)) {
+                return '"'.str_replace('"', '\\"', $var).'"';
+            } else if (is_array($var)) {
+                return 'INVAL';
+            }
+        }
+        if (is_array($ret)) {
+            $tmp = array();
+            foreach ($ret as $v) {
+                $tmp[] = to_dumb_string($v);
+            }
+            echo implode(',', $tmp);
+        } else {
+            echo to_dumb_string($ret);
+        }
+    }
 }
