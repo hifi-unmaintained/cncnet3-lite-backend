@@ -67,7 +67,7 @@ class CnCNet_Api
             }
 
             return array(
-                'url'       => $protocol.':?v4='.CnCNet_Utils::base32_encode(CnCNet_Utils::v4_peers2bin($ips)).'&open&port='.(int)$port,
+                'url'       => $protocol.':?v4='.CnCNet_Utils::base32_encode(CnCNet_Utils::v4_peers2bin($ips)).'&open',
                 'interval'  => self::INTERVAL
             );
         }
