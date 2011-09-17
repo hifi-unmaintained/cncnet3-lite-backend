@@ -64,14 +64,16 @@ if ($type == 'json' || $type == 'jsonp') {
         }
         function to_dumb_string($var)
         {
-            if (is_int($var) || is_float($var)) {
-                return (string)$var;
+            if (is_null($var)) {
+                return 'NULL';
             } else if (is_bool($var)) {
                 return $var ? 'true' : 'false';
+            } else if (is_int($var) || is_float($var)) {
+                return (string)$var;
             } else if (is_string($var)) {
                 return '"'.str_replace('"', '\\"', $var).'"';
-            } else if (is_array($var)) {
-                return 'INVAL';
+            } else {
+                return 'INVAL'; /* array, object */
             }
         }
         if (is_array($ret)) {
